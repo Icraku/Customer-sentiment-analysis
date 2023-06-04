@@ -1,0 +1,506 @@
+{
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "id": "I3xLJ6qqjZ4g"
+      },
+      "outputs": [],
+      "source": [
+        "#imports\n",
+        "\n",
+        "import requests\n",
+        "from bs4 import BeautifulSoup\n",
+        "import pandas as pd\n",
+        "import numpy as np"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#empty lists to collect reviews\n",
+        "reviews = []\n",
+        "\n",
+        "#empty list to collect rating stars\n",
+        "stars = []\n",
+        "\n",
+        "#empty list to collect date\n",
+        "date = []\n",
+        "\n",
+        "#empty list to collect review's country\n",
+        "country = []"
+      ],
+      "metadata": {
+        "id": "GAIuCDoijzap"
+      },
+      "execution_count": 2,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 15,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "JDARYYfhjZ4k",
+        "outputId": "166891fb-3ed0-41fa-ad24-e1ebf325004a"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Scraping page 1\n",
+            "   ---> 3100 total reviews\n",
+            "Scraping page 2\n",
+            "   ---> 3200 total reviews\n",
+            "Scraping page 3\n",
+            "   ---> 3300 total reviews\n",
+            "Scraping page 4\n",
+            "   ---> 3400 total reviews\n",
+            "Scraping page 5\n",
+            "   ---> 3500 total reviews\n",
+            "Scraping page 6\n",
+            "   ---> 3600 total reviews\n",
+            "Scraping page 7\n",
+            "   ---> 3700 total reviews\n",
+            "Scraping page 8\n",
+            "   ---> 3800 total reviews\n",
+            "Scraping page 9\n",
+            "   ---> 3900 total reviews\n",
+            "Scraping page 10\n",
+            "   ---> 4000 total reviews\n",
+            "Scraping page 11\n",
+            "   ---> 4100 total reviews\n",
+            "Scraping page 12\n",
+            "   ---> 4200 total reviews\n",
+            "Scraping page 13\n",
+            "   ---> 4300 total reviews\n",
+            "Scraping page 14\n",
+            "   ---> 4400 total reviews\n",
+            "Scraping page 15\n",
+            "   ---> 4500 total reviews\n",
+            "Scraping page 16\n",
+            "   ---> 4600 total reviews\n",
+            "Scraping page 17\n",
+            "   ---> 4700 total reviews\n",
+            "Scraping page 18\n",
+            "   ---> 4800 total reviews\n",
+            "Scraping page 19\n",
+            "   ---> 4900 total reviews\n",
+            "Scraping page 20\n",
+            "   ---> 5000 total reviews\n",
+            "Scraping page 21\n",
+            "   ---> 5100 total reviews\n",
+            "Scraping page 22\n",
+            "   ---> 5200 total reviews\n",
+            "Scraping page 23\n",
+            "   ---> 5300 total reviews\n",
+            "Scraping page 24\n",
+            "   ---> 5400 total reviews\n",
+            "Scraping page 25\n",
+            "   ---> 5500 total reviews\n",
+            "Scraping page 26\n",
+            "   ---> 5600 total reviews\n",
+            "Scraping page 27\n",
+            "   ---> 5700 total reviews\n",
+            "Scraping page 28\n",
+            "   ---> 5800 total reviews\n",
+            "Scraping page 29\n",
+            "   ---> 5900 total reviews\n",
+            "Scraping page 30\n",
+            "Error on page 30\n",
+            "   ---> 6000 total reviews\n",
+            "Scraping page 31\n",
+            "   ---> 6100 total reviews\n",
+            "Scraping page 32\n",
+            "Error on page 32\n",
+            "Error on page 32\n",
+            "   ---> 6200 total reviews\n",
+            "Scraping page 33\n",
+            "   ---> 6300 total reviews\n",
+            "Scraping page 34\n",
+            "Error on page 34\n",
+            "Error on page 34\n",
+            "   ---> 6400 total reviews\n",
+            "Scraping page 35\n",
+            "Error on page 35\n",
+            "   ---> 6500 total reviews\n"
+          ]
+        }
+      ],
+      "source": [
+        "base_url = \"https://www.airlinequality.com/airline-reviews/british-airways\"\n",
+        "#pages = 10\n",
+        "#page_size = 100\n",
+        "\n",
+        "for i in range(1, 36):\n",
+        "\n",
+        "    print(f\"Scraping page {i}\")\n",
+        "\n",
+        "    # Create URL to collect links from paginated data\n",
+        "    url = f\"{base_url}/page/{i}/?sortby=post_date%3ADesc&pagesize={page_size}\"\n",
+        "\n",
+        "    # Collect HTML data from this page\n",
+        "    page = requests.get(url)\n",
+        "\n",
+        "    # Parse content\n",
+        "    #content = page.content\n",
+        "    soup = BeautifulSoup(page.content, 'html5')\n",
+        "\n",
+        "    for item in soup.find_all(\"div\", class_='text_content'):\n",
+        "        reviews.append(item.text)\n",
+        "\n",
+        "    for item in soup.find_all(\"div\", class_=\"rating-10\"):\n",
+        "        try:\n",
+        "          stars.append(item.span.text)\n",
+        "        except:\n",
+        "          print(f'Error on page {i}') \n",
+        "          stars.append('None')\n",
+        "\n",
+        "    #date\n",
+        "    for item in soup.find_all('time'):\n",
+        "        date.append(item.text)\n",
+        "\n",
+        "    #country\n",
+        "    for item in soup.find_all('h3'):\n",
+        "        country.append(item.span.next_sibling.text.strip('()'))\n",
+        "    \n",
+        "    print(f\"   ---> {len(reviews)} total reviews\")"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# check if length of collected list is same\n",
+        "print(len(reviews))\n",
+        "print(len(country))\n",
+        "print(len(date))\n",
+        "print(len(stars))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "ypeU9Fi-oezK",
+        "outputId": "30e6c50c-73b9-4dcd-d289-88d067fcefc7"
+      },
+      "execution_count": 16,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "6500\n",
+            "3800\n",
+            "3800\n",
+            "6565\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "The length of reviews and country are not same, thus will create an error when creating a dataframe. so we might not use country"
+      ],
+      "metadata": {
+        "id": "92nth3dlpwxU"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "stars = stars[:3800]\n",
+        "reviews = reviews[:3800]\n"
+      ],
+      "metadata": {
+        "id": "r4p51pzqtRKR"
+      },
+      "execution_count": 18,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 19,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 206
+        },
+        "id": "IOviXEnJjZ4s",
+        "outputId": "2cf8af7c-b491-465d-adff-f51f91f57054"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "                                             reviews  \\\n",
+              "0  ✅ Trip Verified | The worst experience in all ...   \n",
+              "1  ✅ Trip Verified |  The worst experience in all...   \n",
+              "2  ✅ Trip Verified |  A serious medical problem a...   \n",
+              "3  ✅ Trip Verified |  I haven't flown British Air...   \n",
+              "4  Not Verified |  My itinerary was supposed to b...   \n",
+              "\n",
+              "                           stars                date           country  \n",
+              "0  \\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t5  28th November 2018         (Germany)  \n",
+              "1                              1  27th November 2018  (United Kingdom)  \n",
+              "2                              1  27th November 2018  (United Kingdom)  \n",
+              "3                             10  22nd November 2018  (United Kingdom)  \n",
+              "4                              1  22nd November 2018          (Canada)  "
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-8855f6f5-920f-4bb1-ae42-1ff94f5faa28\">\n",
+              "    <div class=\"colab-df-container\">\n",
+              "      <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>reviews</th>\n",
+              "      <th>stars</th>\n",
+              "      <th>date</th>\n",
+              "      <th>country</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>✅ Trip Verified | The worst experience in all ...</td>\n",
+              "      <td>\\n\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t\\t5</td>\n",
+              "      <td>28th November 2018</td>\n",
+              "      <td>(Germany)</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>✅ Trip Verified |  The worst experience in all...</td>\n",
+              "      <td>1</td>\n",
+              "      <td>27th November 2018</td>\n",
+              "      <td>(United Kingdom)</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>✅ Trip Verified |  A serious medical problem a...</td>\n",
+              "      <td>1</td>\n",
+              "      <td>27th November 2018</td>\n",
+              "      <td>(United Kingdom)</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>✅ Trip Verified |  I haven't flown British Air...</td>\n",
+              "      <td>10</td>\n",
+              "      <td>22nd November 2018</td>\n",
+              "      <td>(United Kingdom)</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>Not Verified |  My itinerary was supposed to b...</td>\n",
+              "      <td>1</td>\n",
+              "      <td>22nd November 2018</td>\n",
+              "      <td>(Canada)</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>\n",
+              "      <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-8855f6f5-920f-4bb1-ae42-1ff94f5faa28')\"\n",
+              "              title=\"Convert this dataframe to an interactive table.\"\n",
+              "              style=\"display:none;\">\n",
+              "        \n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\"viewBox=\"0 0 24 24\"\n",
+              "       width=\"24px\">\n",
+              "    <path d=\"M0 0h24v24H0V0z\" fill=\"none\"/>\n",
+              "    <path d=\"M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z\"/><path d=\"M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z\"/>\n",
+              "  </svg>\n",
+              "      </button>\n",
+              "      \n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      flex-wrap:wrap;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "      <script>\n",
+              "        const buttonEl =\n",
+              "          document.querySelector('#df-8855f6f5-920f-4bb1-ae42-1ff94f5faa28 button.colab-df-convert');\n",
+              "        buttonEl.style.display =\n",
+              "          google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "        async function convertToInteractive(key) {\n",
+              "          const element = document.querySelector('#df-8855f6f5-920f-4bb1-ae42-1ff94f5faa28');\n",
+              "          const dataTable =\n",
+              "            await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                     [key], {});\n",
+              "          if (!dataTable) return;\n",
+              "\n",
+              "          const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "            '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "            + ' to learn more about interactive tables.';\n",
+              "          element.innerHTML = '';\n",
+              "          dataTable['output_type'] = 'display_data';\n",
+              "          await google.colab.output.renderOutput(dataTable, element);\n",
+              "          const docLink = document.createElement('div');\n",
+              "          docLink.innerHTML = docLinkHtml;\n",
+              "          element.appendChild(docLink);\n",
+              "        }\n",
+              "      </script>\n",
+              "    </div>\n",
+              "  </div>\n",
+              "  "
+            ]
+          },
+          "metadata": {},
+          "execution_count": 19
+        }
+      ],
+      "source": [
+        "df = pd.DataFrame({'reviews':reviews, 'stars':stars, 'date':date, 'country':country})\n",
+        "df.head()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df.shape"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "4iPWJ2lIuPeg",
+        "outputId": "24c1289d-5c97-40ad-bf09-1bb6db09294f"
+      },
+      "execution_count": 22,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(3800, 4)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 22
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Export dataframe to csv format"
+      ],
+      "metadata": {
+        "id": "PM3EaQOMuJyF"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 23,
+      "metadata": {
+        "id": "OEjCjBk2jZ4t"
+      },
+      "outputs": [],
+      "source": [
+        "import os\n",
+        "cwd = os.getcwd()\n",
+        "df.to_csv(cwd+ \"/BA_reviews.csv\")"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "6tKt2RB1qEk9"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "1cpS42y3jZ4x"
+      },
+      "outputs": [],
+      "source": []
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "display_name": "Python 3.9.13 ('venv': venv)",
+      "language": "python",
+      "name": "python3"
+    },
+    "language_info": {
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "file_extension": ".py",
+      "mimetype": "text/x-python",
+      "name": "python",
+      "nbconvert_exporter": "python",
+      "pygments_lexer": "ipython3",
+      "version": "3.9.13"
+    },
+    "orig_nbformat": 4,
+    "vscode": {
+      "interpreter": {
+        "hash": "4f7924c4c56b083e0e50eadfe7ef592a7a8ef70df33a0047f82280e6be1afe15"
+      }
+    },
+    "colab": {
+      "provenance": []
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 0
+}
